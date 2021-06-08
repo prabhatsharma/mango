@@ -1,8 +1,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM 566178068807.dkr.ecr.us-west-2.amazonaws.com/golang:1.15.7-alpine3.13 AS builder
-# FROM golang:alpine AS builder
+FROM golang:alpine AS builder
 # Install git.
 # Git is required for fetching the dependencies.
 RUN apk --update add ca-certificates
@@ -19,7 +18,7 @@ RUN adduser \
     --no-create-home \    
     --uid "${UID}" \    
     "${USER}"
-WORKDIR $GOPATH/src/github.com/prabhatsharma/mango
+WORKDIR $GOPATH/src/github.com/prabhatsharma/mango/
 COPY . .
 # Fetch dependencies.
 # Using go get.
@@ -29,8 +28,7 @@ RUN go get -d -v
 # RUN go mod verify
 # Build the binary.
 # to tackle error standard_init_linux.go:207: exec user process caused "no such file or directory" set CGO_ENABLED=0   
-# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o mango
-RUN go build -o mango
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o mango
 ############################
 # STEP 2 build a small image
 ############################
@@ -43,8 +41,7 @@ COPY --from=builder /etc/group /etc/group
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 # Copy our static executable.
-COPY --from=builder  /go/src/github.com/prabhatsharma/mango/ /go/bin/mango
-
+COPY --from=builder  /go/src/github.com/prabhatsharma/mango/mango /go/bin/mango
 
 # Use an unprivileged user.
 USER appuser:appuser
