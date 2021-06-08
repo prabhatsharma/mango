@@ -1,9 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mango
+
+---
+
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mango
   namespace: mango
 spec:
+  serviceName: mango
   replicas: 1
   selector:
     matchLabels:
@@ -13,6 +21,10 @@ spec:
       labels:
         app: mango
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
       containers:
       - name: mango
         image: 566178068807.dkr.ecr.us-west-2.amazonaws.com/mango:v2
@@ -28,6 +40,8 @@ spec:
         volumeMounts:
         - name: mango
           mountPath: /opt/mango_data
+        securityContext:
+          allowPrivilegeEscalation: false
   volumeClaimTemplates:
   - metadata:
       name: mango
@@ -46,6 +60,7 @@ metadata:
   name: mango
   namespace: mango
 spec:
+  clusterIP: None
   selector:
     app: mango
   ports:
