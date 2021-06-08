@@ -1,0 +1,13 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+steps:
+  - name: build-image  
+    image: plugins/ecr
+    settings:
+      repo: mango
+      registry: 566178068807.dkr.ecr.us-west-2.amazonaws.com
+      tags:
+      - latest
+      - ${DRONE_BUILD_NUMBER}
