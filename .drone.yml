@@ -10,4 +10,4 @@ steps:
       registry: 566178068807.dkr.ecr.us-west-2.amazonaws.com
       tags:
       - latest
-      - ${DRONE_BUILD_NUMBER}
+      - v${DRONE_BUILD_NUMBER}
