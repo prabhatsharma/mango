@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mango
+  namespace: mango
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mango
+  template:
+    metadata:
+      labels:
+        app: mango
+    spec:
+      containers:
+      - name: mango
+        image: 566178068807.dkr.ecr.us-west-2.amazonaws.com/mango:v2
+        env:
+          - name: DATA_DIR
+            value: /opt/mango_data
+        resources:
+          limits:
+            memory: "32Mi"
+            cpu: "20m"
+        ports:
+        - containerPort: 6080
+        volumeMounts:
+        - name: mango
+          mountPath: /opt/mango_data
+  volumeClaimTemplates:
+  - metadata:
+      name: mango
+    spec:
+      storageClassName: ebs-sc
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mango
+  namespace: mango
+spec:
+  selector:
+    app: mango
+  ports:
+  - port: 6080
+    targetPort: 6080
+
